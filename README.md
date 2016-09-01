@@ -1,1 +1,1 @@
-# Chrome Extention for detecting and hightlighting cencoder comments
+# Chrome extention for detecting and hightlighting cencored comments on http://onliner.by portal
