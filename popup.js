@@ -88,14 +88,79 @@ function getImageUrl(searchTerm, callback, errorCallback) {
   x.send();
 }
 
-function renderStatus(statusText) {
-  document.getElementById('status').textContent = statusText;
+function getImageUrl(articleUrl, callback, errorCallback) {
+  var x = new XMLHttpRequest();
+  x.open('GET', articleUrl);
+  // The Google image search API responds with JSON, so let Chrome parse it.
+  x.responseType = 'document';
+  x.onload = function() {
+    // Parse and process the response from Google Image Search.
+    var response = x.response;
+    if (!response || !response.responseData || !response.responseData.results ||
+        response.responseData.results.length === 0) {
+      errorCallback('No response from Google Image search!');
+      return;
+    }
+    var firstResult = response.responseData.results[0];
+    // Take the thumbnail instead of the full image to get an approximately
+    // consistent image size.
+    var imageUrl = firstResult.tbUrl;
+    var width = parseInt(firstResult.tbWidth);
+    var height = parseInt(firstResult.tbHeight);
+    console.assert(
+        typeof imageUrl == 'string' && !isNaN(width) && !isNaN(height),
+        'Unexpected respose from the Google Image Search API!');
+    callback(imageUrl, width, height);
+  };
+  x.onerror = function() {
+    errorCallback('Network error.');
+  };
+  x.send();
 }
 
+function renderStatus(xmlDoc) {
+    document.getElementById('status').innerHTML =
+		xmlDoc.getElementsByTagName("title")[0].childNodes[0].nodeValue;
+}
+
+function subscribe(){
+	console.log('Subscribe');
+	document.getElementById('subscribe').style.display='none';
+	document.getElementById('unsubscribe').style.display='block';
+	return true;
+}
+function unsubscribe(){
+	console.log('UnSubscribe');
+	document.getElementById('unsubscribe').style.display='none';
+	document.getElementById('subscribe').style.display='block';
+	return true;
+}
+
+
 document.addEventListener('DOMContentLoaded', function() {
-  getCurrentTabUrl(function(url) {
+
+	document.getElementById('sButton').addEventListener('click', function() {
+		subscribe();
+	});
+	document.getElementById('unsButton').addEventListener('click', function() {
+		unsubscribe();
+	});
+
+
+	getCurrentTabUrl(function(url) {
+		  
+		/*var xhttp = new XMLHttpRequest();
+		xhttp.responseType='document';
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				renderStatus(this.responseXML);
+			}
+		};
+		xhttp.open("GET", url, true);
+		xhttp.send();*/
+  });
     // Put the image URL in Google search.
-    renderStatus('Performing Google Image search for ' + url);
+    /*renderStatus('Performing Google Image search for ' + url);
 
     getImageUrl(url, function(imageUrl, width, height) {
 
@@ -114,5 +179,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }, function(errorMessage) {
       renderStatus('Cannot display image. ' + errorMessage);
     });
-  });
+  });*/
 });
