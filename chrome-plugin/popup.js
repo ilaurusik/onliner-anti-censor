@@ -80,17 +80,29 @@ function renderStatus(xmlDoc) {
 		xmlDoc.getElementsByTagName("title")[0].childNodes[0].nodeValue;
 }
 
+function getCommentsFromDom(documentXML){
+	return documentXML.getElementById("commentsList").childNodes;
+}
+
 function subscribe(){
 	console.log('Subscribe');
 	document.getElementById('subscribe').style.display='none';
 	document.getElementById('unsubscribe').style.display='block';
-
+	
 	getCurrentTabUrl(function(url){
-			fetchActualComments(url, function(documentXML){
-				storage[url] =  documentXML.getElementById("commentsList").childNodes;
+		
+		/*chrome.tabs.getSelected(null, function(tab) {
+		// Send a request to the content script.
+			chrome.tabs.sendRequest(tab.id, {action: "getDOM"}, function(response) {
+				storage[url] = getCommentsFromDom(response.dom);
 			});
-		}
-	);
+		});*/
+
+		fetchActualComments(url, function(documentXML){
+			storage[url] = getCommentsFromDom(documentXML);
+		});
+		
+	});
 	return true;
 }
 function unsubscribe(){
